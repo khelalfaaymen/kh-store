@@ -43,16 +43,7 @@
 
         .logo { font-size: 1.8rem; font-weight: bold; color: var(--accent); cursor: pointer; }
 
-        .container { 
-            max-width: 1100px; 
-            margin: 0 auto; 
-            padding: 0 1.5rem;
-            width: 100%;
-        }
-        
-        html {
-            scrollbar-gutter: stable;
-        }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
 
         /* الصفحة الرئيسية */
         #homePage { padding: 3rem 0; display: block; }
@@ -87,8 +78,6 @@
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            width: 100%;
-            margin: 0 auto;
         }
 
         @media (max-width: 768px) {
@@ -152,26 +141,8 @@
         .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
         
         /* رسالة التأكيد */
-        .modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.6); 
-            z-index: 1000; 
-            align-items: center; 
-            justify-content: center;
-        }
-        .modal.show { 
-            display: flex;
-        }
-        .modal.show {
-            body {
-                overflow: hidden;
-            }
-        }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
         .modal-content { background: white; padding: 2.5rem; border-radius: 15px; text-align: center; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-content h2 { color: var(--primary); margin-bottom: 1rem; font-size: 1.8rem; }
@@ -295,12 +266,12 @@
     <footer><p>© 2026 KH Store - جميع الحقوق محفوظة</p></footer>
 
     <script>
-        // الروابط المباشرة للصور - استخدام صور placeholder موثوقة
+        // الروابط المباشرة للصور
         const productImages = [
-            'https://via.placeholder.com/450x350/1a1a2e/ffffff?text=لوحة+الرسم+1',
-            'https://via.placeholder.com/450x350/1a1a2e/ffffff?text=لوحة+الرسم+2',
-            'https://via.placeholder.com/450x350/1a1a2e/ffffff?text=لوحة+الرسم+3',
-            'https://via.placeholder.com/450x350/1a1a2e/ffffff?text=لوحة+الرسم+4'
+            'https://i.ibb.co/B2pG2gF/1001031906.jpg',
+            'https://i.ibb.co/9kS8Xrr/1001031907.jpg',
+            'https://i.ibb.co/tMKhzgz/1001031905.jpg',
+            'https://i.ibb.co/f85b774/1001031904.jpg'
         ];
 
         const wilayas = {
@@ -428,3 +399,35 @@
             e.preventDefault();
 
             // التحقق من رقم الهاتف
+            if (!validatePhone()) {
+                return;
+            }
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const phone = document.getElementById('phone').value;
+            const wCode = document.getElementById('wilaya').value;
+            const wName = wilayas[wCode].name;
+            const deliveryType = document.querySelector('input[name="delivery"]:checked').value;
+            const deliveryText = deliveryType === 'office' ? 'توصيل للمكتب' : 'توصيل للمنزل';
+
+            // عرض رسالة التأكيد
+            showConfirmationModal(firstName, lastName, phone, wName, deliveryText);
+        }
+
+        function showConfirmationModal(firstName, lastName, phone, wilaya, delivery) {
+            const modal = document.getElementById('confirmModal');
+            const message = document.getElementById('confirmMessage');
+            message.innerHTML = `<strong>${firstName} ${lastName}</strong><br>تم استقبال طلبك<br>سيتم التواصل معك على <strong>${phone}</strong><br>في ولاية <strong>${wilaya}</strong><br><em>(${delivery})</em>`;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            showHome();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
