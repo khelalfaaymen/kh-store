@@ -428,39 +428,3 @@
             e.preventDefault();
 
             // التحقق من رقم الهاتف
-            if (!validatePhone()) {
-                return;
-            }
-
-            const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementById('lastName').value;
-            const phone = document.getElementById('phone').value;
-            const wCode = document.getElementById('wilaya').value;
-            const wName = wilayas[wCode].name;
-            const deliveryType = document.querySelector('input[name="delivery"]:checked').value;
-            const deliveryText = deliveryType === 'office' ? 'توصيل للمكتب' : 'توصيل للمنزل';
-
-            // عرض رسالة التأكيد
-            showConfirmationModal(firstName, lastName, phone, wName, deliveryText);
-        }
-
-        function showConfirmationModal(firstName, lastName, phone, wilaya, delivery) {
-            const modal = document.getElementById('confirmModal');
-            const message = document.getElementById('confirmMessage');
-            message.innerHTML = `<strong>${firstName} ${lastName}</strong><br>تم استقبال طلبك<br>سيتم التواصل معك على <strong>${phone}</strong><br>في ولاية <strong>${wilaya}</strong><br><em>(${delivery})</em>`;
-            modal.classList.add('show');
-            // منع scroll عند ظهور الـ modal
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('confirmModal').classList.remove('show');
-            // السماح بـ scroll مرة أخرى
-            document.body.style.overflow = 'auto';
-            showHome();
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
