@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KH Store - لوحة الرسم المضيئة</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #1a1a2e;
+            --accent: #ff6b6b;
+            --light: #f7f9fc;
+            --text: #2d3436;
+            --border: #e0e0e0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-size: 1.8rem; font-weight: bold; color: var(--accent); cursor: pointer; }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem; }
+
+        /* الصفحة الرئيسية */
+        #homePage { padding: 3rem 0; display: block; }
+        .hero { text-align: center; margin-bottom: 3rem; }
+        .hero h1 { color: var(--primary); font-size: 2.2rem; margin-bottom: 0.5rem; }
+
+        .products-grid { display: flex; justify-content: center; }
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: 0.3s;
+            cursor: pointer;
+            text-align: center;
+            padding-bottom: 1.5rem;
+            max-width: 350px;
+            width: 100%;
+        }
+        .product-card:hover { transform: translateY(-10px); }
+        .product-card img { width: 100%; height: 350px; object-fit: cover; }
+        .product-card h3 { margin: 1rem 0 0.5rem; color: var(--primary); }
+        .price-tag { color: var(--accent); font-weight: bold; font-size: 1.3rem; display: block; margin-bottom: 1rem; }
+
+        /* صفحة المنتج */
+        #productPage { display: none; padding: 2rem 0; }
+        .product-details-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            .product-details-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .back-btn { display: inline-block; margin-bottom: 1rem; color: var(--primary); font-weight: bold; cursor: pointer; }
+
+        .main-image {
+            width: 100%; height: 450px;
+            background: #000; border-radius: 12px;
+            overflow: hidden; margin-bottom: 1rem;
+        }
+        .main-image img { width: 100%; height: 100%; object-fit: contain; }
+
+        .thumbnail-images { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+        .thumbnail { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; }
+        .thumbnail.active { border-color: var(--accent); }
+        .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+
+        /* النموذج */
+        .checkout-form { background: #fdfdfd; padding: 1.5rem; border-radius: 10px; border: 1px solid #eee; }
+        .form-group { margin-bottom: 1rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        label { font-weight: 600; display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 0.8rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 1rem; }
+        
+        .delivery-options { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+        .delivery-option { background: #f5f5f5; padding: 1rem; border-radius: 8px; border: 2px solid transparent; cursor: pointer; transition: 0.3s; }
+        .delivery-option:hover { background: #efefef; }
+        .delivery-option input[type="radio"] { margin-left: 0.5rem; }
+        .delivery-option label { margin: 0; display: flex; align-items: center; cursor: pointer; justify-content: space-between; }
+        .delivery-option input[type="radio"]:checked + label { color: var(--accent); font-weight: 600; }
+
+        .price-summary { background: #fff9e6; padding: 1.2rem; border-radius: 10px; border: 1px dashed var(--accent); margin: 1.5rem 0; }
+        .price-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .total { font-weight: bold; color: var(--accent); font-size: 1.3rem; border-top: 1px solid #ffd0d0; padding-top: 0.8rem; }
+
+        .btn {
+            padding: 1rem; background: var(--accent); color: white; border: none;
+            border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 1.1rem; width: 100%;
+            transition: 0.3s;
+        }
+        .btn:hover { background: #ff5252; transform: scale(1.02); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        
+        /* رسالة التأكيد */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 2.5rem; border-radius: 15px; text-align: center; max-width: 450px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content h2 { color: var(--primary); margin-bottom: 1rem; font-size: 1.8rem; }
+        .modal-content p { color: #666; margin-bottom: 1.5rem; font-size: 1rem; line-height: 1.6; }
+        .modal-content .success-icon { font-size: 4rem; margin-bottom: 1rem; display: block; }
+        .modal-content .btn { width: 100%; }
+
+        .error-message { color: #d32f2f; font-size: 0.85rem; margin-top: 0.3rem; display: none; }
+        .error-message.show { display: block; }
+
+        footer { background: var(--primary); color: white; padding: 2rem 0; text-align: center; margin-top: 4rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo" onclick="showHome()">🛍️ KH Store</div>
+        </div>
+    </header>
+
+    <div id="homePage">
+        <div class="container">
+            <div class="hero">
+                <h1>مرحباً بك في متجرنا</h1>
+                <p>اكتشف أفضل المنتجات بأفضل الأسعار</p>
+            </div>
+            <div class="products-grid">
+                <div class="product-card" onclick="showProduct()">
+                    <img src="https://i.ibb.co/B2pG2gF/1001031906.jpg" alt="لوحة الرسم المضيئة">
+                    <h3>لوحة الرسم المضيئة السحرية</h3>
+                    <span class="price-tag">1900 د.ج</span>
+                    <button class="btn" style="width: 80%;">اطلب الآن</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="productPage">
+        <div class="container">
+            <div class="back-btn" onclick="showHome()">← العودة للرئيسية</div>
+            <div class="product-details-content">
+                <div class="product-images">
+                    <div class="main-image"><img id="mainImageImg" src="https://i.ibb.co/B2pG2gF/1001031906.jpg"></div>
+                    <div class="thumbnail-images" id="thumbnailContainer"></div>
+                </div>
+
+                <div class="product-info-details">
+                    <h1 style="color: var(--primary); margin-bottom: 1rem;">لوحة الرسم المضيئة السحرية</h1>
+                    <p style="color: #666; margin-bottom: 1.5rem;">لوحة الرسم المضيئة LED لتنمية مهارات طفلك الإبداعية بطريقة مسلية ومبهرة.</p>
+                    
+                    <form onsubmit="submitOrder(event)" class="checkout-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>الاسم</label>
+                                <input type="text" id="firstName" placeholder="أدخل اسمك" required>
+                            </div>
+                            <div class="form-group">
+                                <label>اللقب</label>
+                                <input type="text" id="lastName" placeholder="أدخل لقبك" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>رقم الهاتف (10 أرقام)</label>
+                            <input type="tel" id="phone" placeholder="أدخل رقم هاتفك" maxlength="10" required>
+                            <div id="phoneError" class="error-message">رقم الهاتف يجب أن يكون 10 أرقام</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>الولاية</label>
+                            <select id="wilaya" onchange="updatePrice()" required>
+                                <option value="">-- اختر الولاية --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>طريقة التوصيل</label>
+                            <div class="delivery-options">
+                                <div class="delivery-option">
+                                    <input type="radio" id="officeDelivery" name="delivery" value="office" onchange="updatePrice()" required>
+                                    <label for="officeDelivery">
+                                        <span>توصيل للمكتب</span>
+                                        <span id="officePrice"></span>
+                                    </label>
+                                </div>
+                                <div class="delivery-option">
+                                    <input type="radio" id="homeDelivery" name="delivery" value="home" onchange="updatePrice()" required>
+                                    <label for="homeDelivery">
+                                        <span>توصيل للمنزل</span>
+                                        <span id="homePrice"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <p style="font-size: 0.85rem; color: #666; margin-top: 0.8rem; text-align: center;">🚚 التوصيل مع مكتب <strong>World Express</strong></p>
+                        </div>
+                        
+                        <div class="price-summary">
+                            <div class="price-row"><span>سعر المنتج:</span> <span>1900 د.ج</span></div>
+                            <div class="price-row"><span>مصاريف الشحن:</span> <span id="deliveryFee">0 د.ج</span></div>
+                            <div class="price-row total"><span>الإجمالي:</span> <span id="totalPrice">1900 د.ج</span></div>
+                        </div>
+                        
+                        <button type="submit" class="btn">تأكيد الطلب ✅</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تأكيد الطلب -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <span class="success-icon">✅</span>
+            <h2>تم تأكيد طلبك بنجاح!</h2>
+            <p id="confirmMessage">شكراً لك على طلبك. سيتم التواصل معك قريباً لتأكيد التفاصيل والدفع.</p>
+            <button class="btn" onclick="closeModal()">رجوع للرئيسية</button>
+        </div>
+    </div>
+
+    <footer><p>© 2026 KH Store - جميع الحقوق محفوظة</p></footer>
+
+    <script>
+        // الروابط المباشرة للصور
+        const productImages = [
+            'https://i.ibb.co/B2pG2gF/1001031906.jpg',
+            'https://i.ibb.co/9kS8Xrr/1001031907.jpg',
+            'https://i.ibb.co/tMKhzgz/1001031905.jpg',
+            'https://i.ibb.co/f85b774/1001031904.jpg'
+        ];
+
+        const wilayas = {
+            "01": {name: "أدرار", price: 900}, "02": {name: "الشلف", price: 600}, "03": {name: "الأغواط", price: 700},
+            "04": {name: "أم البواقي", price: 600}, "05": {name: "باتنة", price: 600}, "06": {name: "بجاية", price: 500},
+            "07": {name: "بسكرة", price: 700}, "08": {name: "بشار", price: 900}, "09": {name: "البليدة", price: 400},
+            "10": {name: "البويرة", price: 500}, "11": {name: "تمنراست", price: 1200}, "12": {name: "تبسة", price: 600},
+            "13": {name: "تلمسان", price: 600}, "14": {name: "تيارت", price: 600}, "15": {name: "تيزي وزو", price: 500},
+            "16": {name: "الجزائر", price: 350}, "17": {name: "الجلفة", price: 600}, "18": {name: "جيجل", price: 600},
+            "19": {name: "سطيف", price: 500}, "20": {name: "سعيدة", price: 600}, "21": {name: "سكيكدة", price: 600},
+            "22": {name: "سيدي بلعباس", price: 600}, "23": {name: "عنابة", price: 600}, "24": {name: "قالمة", price: 600},
+            "25": {name: "قسنطينة", price: 500}, "26": {name: "المدية", price: 500}, "27": {name: "مستغانم", price: 600},
+            "28": {name: "المسيلة", price: 600}, "29": {name: "معسكر", price: 600}, "30": {name: "ورقلة", price: 800},
+            "31": {name: "وهران", price: 600}, "32": {name: "البيض", price: 800}, "33": {name: "إليزي", price: 1200},
+            "34": {name: "برج بوعريريج", price: 500}, "35": {name: "بومرداس", price: 400}, "36": {name: "الطارف", price: 600},
+            "37": {name: "تندوف", price: 1200}, "38": {name: "تيسمسيلت", price: 600}, "39": {name: "الوادي", price: 700},
+            "40": {name: "خنشلة", price: 600}, "41": {name: "سوق أهراس", price: 600}, "42": {name: "تيبازة", price: 400},
+            "43": {name: "ميلة", price: 600}, "44": {name: "عين الدفلة", price: 500}, "45": {name: "النعامة", price: 800},
+            "46": {name: "عين تموشنت", price: 600}, "47": {name: "غرداية", price: 700}, "48": {name: "غليزان", price: 600},
+            "49": {name: "تيميمون", price: 1000}, "50": {name: "برج باجي مختار", price: 1500}, "51": {name: "أولاد جلال", price: 800},
+            "52": {name: "بني عباس", price: 1000}, "53": {name: "عين صالح", price: 1200}, "54": {name: "عين قزام", price: 1500},
+            "55": {name: "تقرت", price: 800}, "56": {name: "جانت", price: 1500}, "57": {name: "المغير", price: 800}, "58": {name: "المنيعة", price: 1000}
+        };
+
+        function showProduct() {
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('productPage').style.display = 'block';
+            window.scrollTo(0, 0);
+        }
+
+        function showHome() {
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('productPage').style.display = 'none';
+            // إعادة تعيين النموذج
+            document.querySelector('.checkout-form').reset();
+            document.getElementById('phoneError').classList.remove('show');
+            window.scrollTo(0, 0);
+        }
+
+        function init() {
+            // ملء قائمة الولايات برقم واسم (بدون السعر)
+            const select = document.getElementById('wilaya');
+            Object.keys(wilayas).sort().forEach(key => {
+                const w = wilayas[key];
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = key + ' - ' + w.name;
+                select.appendChild(option);
+            });
+
+            // إضافة صور الصور المصغرة
+            const thumbContainer = document.getElementById('thumbnailContainer');
+            productImages.forEach((img, index) => {
+                const div = document.createElement('div');
+                div.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+                div.innerHTML = `<img src="${img}">`;
+                div.onclick = function() {
+                    document.getElementById('mainImageImg').src = img;
+                    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                };
+                thumbContainer.appendChild(div);
+            });
+
+            // إضافة حد أقصى لرقم الهاتف
+            const phoneInput = document.getElementById('phone');
+            phoneInput.addEventListener('input', function(e) {
+                // السماح بأرقام فقط
+                this.value = this.value.replace(/[^0-9]/g, '');
+                // حد أقصى 10 أرقام
+                if (this.value.length > 10) {
+                    this.value = this.value.slice(0, 10);
+                }
+                // إخفاء الخطأ عند الكتابة
+                document.getElementById('phoneError').classList.remove('show');
+            });
+        }
+
+        function updatePrice() {
+            const wCode = document.getElementById('wilaya').value;
+            const deliveryType = document.querySelector('input[name="delivery"]:checked')?.value;
+
+            if (!wCode) {
+                document.getElementById('deliveryFee').innerText = '0 د.ج';
+                document.getElementById('totalPrice').innerText = '1900 د.ج';
+                document.getElementById('officePrice').innerText = '';
+                document.getElementById('homePrice').innerText = '';
+                return;
+            }
+
+            const basePrice = wilayas[wCode].price;
+            
+            // تحديث أسعار الخيارات
+            document.getElementById('officePrice').innerText = '(+' + basePrice + ' د.ج)';
+            document.getElementById('homePrice').innerText = '(+' + (basePrice + 300) + ' د.ج)';
+
+            // إظهار مصاريف الشحن فقط بعد اختيار طريقة التوصيل
+            if (!deliveryType) {
+                document.getElementById('deliveryFee').innerText = '0 د.ج';
+                document.getElementById('totalPrice').innerText = '1900 د.ج';
+                return;
+            }
+
+            let deliveryPrice = basePrice;
+
+            // إذا كان التوصيل للمنزل، أضف 300 دينار
+            if (deliveryType === 'home') {
+                deliveryPrice = basePrice + 300;
+            }
+
+            document.getElementById('deliveryFee').innerText = deliveryPrice + ' د.ج';
+            document.getElementById('totalPrice').innerText = (1900 + deliveryPrice) + ' د.ج';
+        }
+
+        function validatePhone() {
+            const phone = document.getElementById('phone').value;
+            if (phone.length !== 10) {
+                document.getElementById('phoneError').classList.add('show');
+                return false;
+            }
+            return true;
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+
+            // التحقق من رقم الهاتف
+            if (!validatePhone()) {
+                return;
+            }
+
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const phone = document.getElementById('phone').value;
+            const wCode = document.getElementById('wilaya').value;
+            const wName = wilayas[wCode].name;
+            const deliveryType = document.querySelector('input[name="delivery"]:checked').value;
+            const deliveryText = deliveryType === 'office' ? 'توصيل للمكتب' : 'توصيل للمنزل';
+
+            // عرض رسالة التأكيد
+            showConfirmationModal(firstName, lastName, phone, wName, deliveryText);
+        }
+
+        function showConfirmationModal(firstName, lastName, phone, wilaya, delivery) {
+            const modal = document.getElementById('confirmModal');
+            const message = document.getElementById('confirmMessage');
+            message.innerHTML = `<strong>${firstName} ${lastName}</strong><br>تم استقبال طلبك<br>سيتم التواصل معك على <strong>${phone}</strong><br>في ولاية <strong>${wilaya}</strong><br><em>(${delivery})</em>`;
+            modal.classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('show');
+            showHome();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
