@@ -19,6 +19,7 @@
             background: var(--light);
             color: var(--text);
             line-height: 1.6;
+            scrollbar-gutter: stable;
         }
 
         header {
@@ -91,10 +92,24 @@
             width: 100%; height: 450px;
             background: #000; border-radius: 12px;
             overflow: hidden; margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .main-image img { width: 100%; height: 100%; object-fit: contain; }
+        .main-image img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain;
+            display: block;
+        }
 
-        .thumbnail-images { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; }
+        .thumbnail-images { 
+            display: flex; 
+            gap: 0.8rem; 
+            justify-content: center; 
+            flex-wrap: wrap;
+            min-height: 80px;
+        }
         .thumbnail { width: 70px; height: 70px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; }
         .thumbnail.active { border-color: var(--accent); }
         .thumbnail img { width: 100%; height: 100%; object-fit: cover; }
